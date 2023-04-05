@@ -1,5 +1,7 @@
 package com.matrix.forecast.ui.Fragment;
 
+import static com.matrix.forecast.UtilTool.StringTool.GetMapStr2String;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -33,7 +35,7 @@ public class MainFragment extends Fragment {
 
     private EditText mEditText;
     //private Button mForecastBtn,mReadBtn,mSaveBtn;
-    private TextView mShow_View;
+    private TextView mShow_View,mForecast_View;
 
     //private List<String> mNumList;
     private Map<String,Integer> mNumMap;
@@ -73,7 +75,9 @@ public class MainFragment extends Fragment {
         mSaveBtn=view.findViewById(R.id.save_btn);
         mDelSaveBtn=view.findViewById(R.id.del_savebtn);
         mShow_View=view.findViewById(R.id.show_View);
+        mForecast_View=view.findViewById(R.id.forecast_View);
         mShow_View.setMovementMethod(ScrollingMovementMethod.getInstance());//添加文本视图滚动条
+        mForecast_View.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         mForecastBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,11 +183,34 @@ public class MainFragment extends Fragment {
             GetWriteFile(mNumMap.toString(),mForecastFilePath,false);//写入文件,结果覆盖，为false
         }
 
-        //GetList(mNumList);
-        mShow_View.setText(mNumMap.toString()+"\n个数:"+mNumMap.size());
+        String mShow_Map=GetMapStr2String(mNumMap.toString());
+        mShow_View.setText(mShow_Map);
+        Show_ForecastView(mNumMap);
     }
 
+    /***
+     * 展示预测结果
+     */
+    private void Show_ForecastView(Map<String,Integer> map){
+        int mAmount=0,mProfit=0;
+        Map<String,Integer> mShowMap=new HashMap<>();
+        for (String key : map.keySet()) {
+            mAmount+=map.get(key);
+        }
 
+        mProfit=(int)(mAmount-mAmount*0.04)/47;
+        for(String mkey : map.keySet()){
+            if(map.get(mkey)>mProfit){
+                mShowMap.put(mkey,map.get(mkey)-mProfit);
+            }
+        }
+
+        mForecast_View.setText("本次统计共:"+map.size()+"个。\n"+
+                "总金额:"+ String.valueOf(mAmount)+"\n"+
+                "利润点:"+mProfit+"\n"+
+                "预计抛出:\n"+GetMapStr2String(mShowMap.toString())
+        );
+    }
 
     /***
      * 拆分数字存入list
@@ -262,6 +289,7 @@ public class MainFragment extends Fragment {
 
     private void FreshTextview(){
         mShow_View.setText("");
+        mForecast_View.setText("");
     }
 
     private void FreshEditView(){

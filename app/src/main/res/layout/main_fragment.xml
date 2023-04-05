@@ -81,6 +81,16 @@
             android:scrollbars="vertical"
             android:singleLine="false"
             android:textSize="24dp" />
+
+        <TextView
+            android:id="@+id/forecast_View"
+            android:layout_width="match_parent"
+            android:layout_height="260dp"
+            android:layout_below="@id/show_View"
+            android:layout_marginTop="5dp"
+            android:scrollbars="vertical"
+            android:singleLine="false"
+            android:textSize="24dp" />
     </RelativeLayout>
 
 </LinearLayout>
