@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.matrix.forecast.R;
+import com.matrix.forecast.UtilTool.FileUnit;
 import com.matrix.forecast.ui.Fragment.ChatFragment;
 import com.matrix.forecast.ui.Fragment.MainFragment;
 import com.matrix.forecast.ui.Fragment.UserFragment;
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         getPermission();
         initView();
         //setHalfTransparent();
-        CreateOrigiFile(mOriginalFilePath);
+        //CreateOrigiFile(mOriginalFilePath);
     }
 
     /***
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void CreateOrigiFile(String mOriginalFilePath) {
         try {
-            FileUitl.createFileRecursion(mOriginalFilePath, 0);
+            FileUnit.createFileRecursion(mOriginalFilePath, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }

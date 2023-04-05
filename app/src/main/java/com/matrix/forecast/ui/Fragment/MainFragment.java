@@ -15,6 +15,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.matrix.forecast.R;
+import com.matrix.forecast.UtilTool.FileUnit;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class MainFragment extends Fragment {
         mReadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String test=GetReadFile();//mForecastFilePath，mOriginalFilePath
+                String test=GetReadFile(mOriginalFilePath);//mForecastFilePath，mOriginalFilePath
 
                 mShow_View.setText(test);
             }
@@ -141,7 +142,7 @@ public class MainFragment extends Fragment {
     private void GetWriteFile(String fileContent){
         try {
             //String mFilePath="/sdcard/Download/forecast.txt";
-            FileUitl.createFileRecursion(mForecastFilePath, 0);
+            FileUnit.createFileRecursion(mForecastFilePath, 0);
             FileWriter fileWriter = new FileWriter(mForecastFilePath,false);//覆盖写入:isCover是false
             //fileWriter.write(String.valueOf(mNumMap.toString()));
             fileWriter.write(fileContent);
@@ -156,10 +157,10 @@ public class MainFragment extends Fragment {
     /**
      * 读取文件内容
      */
-    private String GetReadFile(){
+    private String GetReadFile(String file_path){
         String mRead= null;
         try {
-            mRead = FileUitl.readFileRecursion(mForecastFilePath);
+            mRead = FileUnit.readFileRecursion(file_path);
             mRead=mRead.substring(0,mRead.length()-1);//去尾
             mRead=mRead.substring(1,mRead.length());//去头
             mRead=mRead.replaceAll("[ ]","").replaceAll("[ ]","");//去除空格
