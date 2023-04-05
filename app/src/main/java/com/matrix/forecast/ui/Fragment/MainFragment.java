@@ -42,6 +42,7 @@ public class MainFragment extends Fragment {
 
     private final String mForecastFilePath="/sdcard/Download/forecast.txt";
     private final String mOriginalFilePath="/sdcard/Download/original.txt";
+    private final String mThrowResultPath="/sdcard/Download/ThrowResult.txt";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -205,11 +206,14 @@ public class MainFragment extends Fragment {
             }
         }
 
-        mForecast_View.setText("本次统计共:"+map.size()+"个。\n"+
+        String mTemp="本次统计共:"+map.size()+"个。\n"+
                 "总金额:"+ String.valueOf(mAmount)+"\n"+
                 "利润点:"+mProfit+"\n"+
-                "预计抛出:\n"+GetMapStr2String(mShowMap.toString())
-        );
+                "预计抛出:\n"+GetMapStr2String(mShowMap.toString());
+        mForecast_View.setText(mTemp);
+        GetWriteFile(mTemp,mThrowResultPath,false);
+
+        Toast.makeText(view.getContext(), "保存成功！！！",Toast.LENGTH_SHORT).show();
     }
 
     /***
@@ -253,8 +257,8 @@ public class MainFragment extends Fragment {
             fileWriter.write(fileContent+"\n");
             fileWriter.flush();
             fileWriter.close();
-            Log.i("File_WRITE", "FilePath: " + filePath);
-            Toast.makeText(view.getContext(), "保存成功！！！",Toast.LENGTH_SHORT).show();
+            //Log.i("File_WRITE", "FilePath: " + filePath);
+            //Toast.makeText(view.getContext(), "保存成功！！！",Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
