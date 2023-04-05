@@ -35,7 +35,8 @@ public class MainFragment extends Fragment {
     //private Button mForecastBtn,mReadBtn,mSaveBtn;
     private TextView mShow_View;
 
-    private List<String> mNumList;
+    //private List<String> mNumList;
+    private Map<String,Integer> mNumMap;
 
     private final String mForecastFilePath="/sdcard/Download/forecast.txt";
     private final String mOriginalFilePath="/sdcard/Download/original.txt";
@@ -65,43 +66,64 @@ public class MainFragment extends Fragment {
 
     private void Init_Component(final View view) {
 
-        mNumList=new ArrayList<>();
-
-        Button mForecastBtn,mReadBtn,mSaveBtn;
+        Button mForecastBtn,mReadBtn,mSaveBtn,mDelSaveBtn;
         mEditText=(EditText)view.findViewById(R.id.edit_text);
         mForecastBtn=(Button)view.findViewById(R.id.forecast_btn);
         mReadBtn=(Button)view.findViewById(R.id.read_btn);
         mSaveBtn=view.findViewById(R.id.save_btn);
+        mDelSaveBtn=view.findViewById(R.id.del_savebtn);
         mShow_View=view.findViewById(R.id.show_View);
         mShow_View.setMovementMethod(ScrollingMovementMethod.getInstance());//添加文本视图滚动条
 
         mForecastBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String meditText= mEditText.getText().toString();
-                Log.i("获取文本内容:",meditText);
+                FreshTextview();
+                String editText= mEditText.getText().toString();
+                Log.i("获取文本内容:",editText);
                 //Toast.makeText(view.getContext(), "获取文本内容:"+meditText,Toast.LENGTH_SHORT).show();
-                GetNum(meditText);
+                if(editText.length()>0){
+                    GetNum(editText);
+                }else{
+                    Toast.makeText(view.getContext(), "输入内容为空，请检查！！！",Toast.LENGTH_SHORT).show();
+                }
             }
         });
         mReadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String test=GetReadFile(mOriginalFilePath);//mForecastFilePath，mOriginalFilePath
-                mShow_View.setText(test);
+                FreshTextview();
+                String mOriginal=GetReadFile(mOriginalFilePath);//mForecastFilePath，mOriginalFilePath
+                if(mOriginal==null||mOriginal.length()<=0){
+                    Toast.makeText(view.getContext(), "无缓存，请输入！！！",Toast.LENGTH_SHORT).show();
+                }
+                mEditText.setText(mOriginal);
             }
         });
         mSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FreshTextview();
                 String meditText= mEditText.getText().toString();
                 //Toast.makeText(view.getContext(), "暂存文本长度:"+meditText.length(),Toast.LENGTH_SHORT).show();//0
-
                 if(meditText.length()<=0){
                     Toast.makeText(view.getContext(), "输入内容为空，请检查！！！",Toast.LENGTH_SHORT).show();
                 }else{
                     GetWriteFile(meditText,mOriginalFilePath,true);//原始文件，追加
-                    mEditText.setText("");//上一次截取之后，输入框置空
+                    FreshEditView();//上一次截取之后，输入框置空
+                }
+            }
+        });
+        mDelSaveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isDel=FileUnit.deleteFile(mOriginalFilePath);
+                if(isDel){
+                    FreshTextview();
+                    Toast.makeText(view.getContext(), "！！！清空缓存！！！",Toast.LENGTH_SHORT).show();
+                    FreshEditView();//上一次截取之后，输入框置空
+                }else{
+                    Toast.makeText(view.getContext(), "！！！没有缓存！！！",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -143,46 +165,32 @@ public class MainFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void GetNum(String mText) {
 
-        List<String> mNumList=new ArrayList<>();
+        //mNumList=new ArrayList<>();
+        mNumMap=new HashMap<>();
         String[] mTexts=mText.split("\n");
         for (int i=0;i<mTexts.length;i++){
-            //textTemp+=mTexts[i];
-            mNumList=GetSplit(mTexts[i]);
+            //mNumList=GetSplit(mTexts[i]);
+            mNumMap=GetSplit(mTexts[i]);
         }
-        mShow_View.setText(mNumList.toString());
 
-        if(mNumList.size()==0){
+        if(mNumMap.size()==0){
             Toast.makeText(view.getContext(), "输入内容为空，请检查！！！",Toast.LENGTH_SHORT).show();
         }else{
-            GetWriteFile(mNumList.toString(),mForecastFilePath,false);//写入文件,结果覆盖，为false
+            GetWriteFile(mNumMap.toString(),mForecastFilePath,false);//写入文件,结果覆盖，为false
         }
 
-//        String regEx = "[^0-9]";
-//        Pattern p = Pattern.compile(regEx);
-//        Matcher m = p.matcher(mText);
-//        String result = m.replaceAll(" ").trim();
-//        Log.i("","字符串筛选:"+result);//字符串筛选:4 13 26 33 45 10
-//        String[] result_list=result.split(" ");
-//
-//        Map<String,String> mNumMap=new HashMap<>();
-//        List<String> mNumList=new ArrayList<>();
-//        List<String> mWriteNumList=new ArrayList<>();
-//        Log.i("","字符串筛选:"+result_list.length);
-//        String mMoney=result_list[result_list.length-1];
-//        for(int i=0;i<result_list.length-1;i++){
-//            //mNumMap.put(result_list[i],mMoney);
-//            mNumList.add(result_list[i]+":"+mMoney);
-//        }
-
-//
-//        if(mNumList.size()==0){
-//            Toast.makeText(view.getContext(), "输入内容为空，请检查！！！",Toast.LENGTH_SHORT).show();
-//        }else{
-//            GetWriteFile(mNumList.toString(),mForecastFilePath,false);//写入文件,结果覆盖，为false
-//        }
+        //GetList(mNumList);
+        mShow_View.setText(mNumMap.toString()+"\n个数:"+mNumMap.size());
     }
-    private List<String> GetSplit(String mStr){
 
+
+
+    /***
+     * 拆分数字存入list
+     * @param mStr
+     * @return
+     */
+    private Map<String,Integer> GetSplit(String mStr){
         String regEx = "[^0-9]";
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(mStr);
@@ -192,14 +200,18 @@ public class MainFragment extends Fragment {
 
         //List<String> mNumList=new ArrayList<>();
         Log.i("","字符串筛选:"+result_list.length);
-        String mMoney=result_list[result_list.length-1];
+        int mMoney=Integer.parseInt(result_list[result_list.length-1]);
         for(int i=0;i<result_list.length-1;i++){
-            mNumList.add(result_list[i]+":"+mMoney);
+            //mNumList.add(result_list[i]+":"+mMoney);
+            if(mNumMap.containsKey(result_list[i])){
+                mNumMap.put(result_list[i],mNumMap.get(result_list[i])+mMoney);
+            }else{
+                mNumMap.put(result_list[i],mMoney);
+            }
         }
+       FreshEditView();//上一次截取之后，输入框置空
 
-        mEditText.setText("");//上一次截取之后，输入框置空
-
-        return mNumList;
+        return mNumMap;
     }
 
     /**
@@ -246,5 +258,13 @@ public class MainFragment extends Fragment {
                 break;
         }
         return mRead;
+    }
+
+    private void FreshTextview(){
+        mShow_View.setText("");
+    }
+
+    private void FreshEditView(){
+        mEditText.setText("");
     }
 }

@@ -5,6 +5,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,9 +53,27 @@ public class FileUnit {
         return str_result;
     }
 
-    /**
-     * toString转Map
+    /** 删除单个文件
+     * @param filePath 要删除的文件的文件名
+     * @return 单个文件删除成功返回true，否则返回false
      */
+    public static boolean deleteFile(String filePath) {
+        File file = new File(filePath);
+        // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
+        if (file.exists() && file.isFile()) {
+            if (file.delete()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+        /**
+         * toString转Map
+         */
     public static Map<String,Object> mapStringToMap(String stringMap){
         Map<String,Object> map = new HashMap<>();
         String[] strings = stringMap.split(",");
