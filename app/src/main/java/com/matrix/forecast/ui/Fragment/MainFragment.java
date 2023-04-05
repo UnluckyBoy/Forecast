@@ -2,6 +2,7 @@ package com.matrix.forecast.ui.Fragment;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,12 @@ public class MainFragment extends Fragment {
 
     private View view;
 
+    private EditText mEditText;
+    //private Button mForecastBtn,mReadBtn,mSaveBtn;
+    private TextView mShow_View;
+
+    private List<String> mNumList;
+
     private final String mForecastFilePath="/sdcard/Download/forecast.txt";
     private final String mOriginalFilePath="/sdcard/Download/original.txt";
 
@@ -57,36 +64,77 @@ public class MainFragment extends Fragment {
 
 
     private void Init_Component(final View view) {
-        EditText mEditText;
-        Button mForecastBtn,mReadBtn;
-        TextView mShow_View;
 
+        mNumList=new ArrayList<>();
+
+        Button mForecastBtn,mReadBtn,mSaveBtn;
         mEditText=(EditText)view.findViewById(R.id.edit_text);
         mForecastBtn=(Button)view.findViewById(R.id.forecast_btn);
         mReadBtn=(Button)view.findViewById(R.id.read_btn);
+        mSaveBtn=view.findViewById(R.id.save_btn);
         mShow_View=view.findViewById(R.id.show_View);
+        mShow_View.setMovementMethod(ScrollingMovementMethod.getInstance());//添加文本视图滚动条
 
         mForecastBtn.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
-               String mText= mEditText.getText().toString();
-               Log.i("获取文本内容:",mText);
-               //Toast.makeText(view.getContext(), "获取文本内容:"+mText,Toast.LENGTH_SHORT).show();
-
-               GetNum(mText);
+                String meditText= mEditText.getText().toString();
+                Log.i("获取文本内容:",meditText);
+                //Toast.makeText(view.getContext(), "获取文本内容:"+meditText,Toast.LENGTH_SHORT).show();
+                GetNum(meditText);
             }
         });
-
         mReadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String test=GetReadFile(mOriginalFilePath);//mForecastFilePath，mOriginalFilePath
-
                 mShow_View.setText(test);
             }
         });
+        mSaveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String meditText= mEditText.getText().toString();
+                //Toast.makeText(view.getContext(), "暂存文本长度:"+meditText.length(),Toast.LENGTH_SHORT).show();//0
+
+                if(meditText.length()<=0){
+                    Toast.makeText(view.getContext(), "输入内容为空，请检查！！！",Toast.LENGTH_SHORT).show();
+                }else{
+                    GetWriteFile(meditText,mOriginalFilePath,true);//原始文件，追加
+                    mEditText.setText("");//上一次截取之后，输入框置空
+                }
+            }
+        });
+
+//        mForecastBtn.setOnClickListener(new mClickLister());
+//        mReadBtn.setOnClickListener(new mClickLister());
+//        mSaveBtn.setOnClickListener(new mClickLister());
     }
+
+    /***
+     * 重写按钮响应函数
+     */
+//    private class mClickLister implements View.OnClickListener {
+//        @Override
+//        public void onClick(View v) {
+//            final int mBtn_id=view.getId();
+//            switch (mBtn_id){
+//                case R.id.forecast_btn:
+//                    String mText= mEditText.getText().toString();
+//                    Log.i("获取文本内容:",mText);
+//                    //Toast.makeText(view.getContext(), "获取文本内容:"+mText,Toast.LENGTH_SHORT).show();
+//                    //GetNum(mText);
+//                    break;
+//                case R.id.read_btn:
+//                    String test=GetReadFile(mOriginalFilePath);//mForecastFilePath，mOriginalFilePath
+//                    mShow_View.setText(test);
+//                    break;
+//                case R.id.save_btn:
+//
+//                    break;
+//            }
+//        }
+//    }
 
     /***
      * 将字符串提取数字
@@ -95,60 +143,78 @@ public class MainFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void GetNum(String mText) {
 
-        String regEx = "[^0-9]";
-        Pattern p = Pattern.compile(regEx);
-        Matcher m = p.matcher(mText);
-        String result = m.replaceAll(" ").trim();
-        Log.i("","字符串筛选:"+result);//字符串筛选:4 13 26 33 45 10
-        String[] result_list=result.split(" ");
-
-        Map<String,String> mNumMap=new HashMap<>();
         List<String> mNumList=new ArrayList<>();
-        List<String> mWriteNumList=new ArrayList<>();
-        Log.i("","字符串筛选:"+result_list.length);
-        String mMoney=result_list[result_list.length-1];
-        for(int i=0;i<result_list.length-1;i++){
-            //mNumMap.put(result_list[i],mMoney);
-            mNumList.add(result_list[i]+":"+mMoney);
+        String[] mTexts=mText.split("\n");
+        for (int i=0;i<mTexts.length;i++){
+            //textTemp+=mTexts[i];
+            mNumList=GetSplit(mTexts[i]);
         }
+        mShow_View.setText(mNumList.toString());
 
         if(mNumList.size()==0){
             Toast.makeText(view.getContext(), "输入内容为空，请检查！！！",Toast.LENGTH_SHORT).show();
         }else{
-//            String mRead=GetReadFile(mForecastFilePath);
-//            List<String> mRead_result = Arrays.asList(mRead.split(","));
-//
-//            //Toast.makeText(view.getContext(), "保存，其中一个list元素:"+mRead_result,Toast.LENGTH_SHORT).show();
-//            for(int i=0;i<mRead_result.size();i++){
-//                Log.i("","读取的list:"+mRead_result.get(i));
-//                for(int j=i;j<mNumList.size();j++){
-//                    if(mRead_result.get(i).split(":")[0].equals(mNumList.get(j).split(":")[0])){
-//                        Log.i("","存在相同的元素"+mRead_result.get(i).split(":")[0]+"---"+mNumList.get(j).split(":")[0]);
-//
-//                        mNumList.add(mNumList.get(j).split(":")[0]+":"+String.valueOf(
-//                                Integer.parseInt(mRead_result.get(i).split(":")[1])+
-//                                        Integer.parseInt(mNumList.get(j).split(":")[1])));
-//                    }
-//                }
-//            }
-            //暂时注释
-            GetWriteFile(mNumList.toString());//写入文件
+            GetWriteFile(mNumList.toString(),mForecastFilePath,false);//写入文件,结果覆盖，为false
         }
+
+//        String regEx = "[^0-9]";
+//        Pattern p = Pattern.compile(regEx);
+//        Matcher m = p.matcher(mText);
+//        String result = m.replaceAll(" ").trim();
+//        Log.i("","字符串筛选:"+result);//字符串筛选:4 13 26 33 45 10
+//        String[] result_list=result.split(" ");
+//
+//        Map<String,String> mNumMap=new HashMap<>();
+//        List<String> mNumList=new ArrayList<>();
+//        List<String> mWriteNumList=new ArrayList<>();
+//        Log.i("","字符串筛选:"+result_list.length);
+//        String mMoney=result_list[result_list.length-1];
+//        for(int i=0;i<result_list.length-1;i++){
+//            //mNumMap.put(result_list[i],mMoney);
+//            mNumList.add(result_list[i]+":"+mMoney);
+//        }
+
+//
+//        if(mNumList.size()==0){
+//            Toast.makeText(view.getContext(), "输入内容为空，请检查！！！",Toast.LENGTH_SHORT).show();
+//        }else{
+//            GetWriteFile(mNumList.toString(),mForecastFilePath,false);//写入文件,结果覆盖，为false
+//        }
+    }
+    private List<String> GetSplit(String mStr){
+
+        String regEx = "[^0-9]";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(mStr);
+        String result = m.replaceAll(" ").trim();
+        Log.i("","字符串筛选:"+result);//字符串筛选:4 13 26 33 45 10
+        String[] result_list=result.split(" ");
+
+        //List<String> mNumList=new ArrayList<>();
+        Log.i("","字符串筛选:"+result_list.length);
+        String mMoney=result_list[result_list.length-1];
+        for(int i=0;i<result_list.length-1;i++){
+            mNumList.add(result_list[i]+":"+mMoney);
+        }
+
+        mEditText.setText("");//上一次截取之后，输入框置空
+
+        return mNumList;
     }
 
     /**
      * 写入文件
      */
-    private void GetWriteFile(String fileContent){
+    private void GetWriteFile(String fileContent,String filePath,boolean isCover){
         try {
             //String mFilePath="/sdcard/Download/forecast.txt";
-            FileUnit.createFileRecursion(mForecastFilePath, 0);
-            FileWriter fileWriter = new FileWriter(mForecastFilePath,false);//覆盖写入:isCover是false
+            FileUnit.createFileRecursion(filePath, 0);
+            FileWriter fileWriter = new FileWriter(filePath,isCover);//覆盖写入:isCover是false
             //fileWriter.write(String.valueOf(mNumMap.toString()));
-            fileWriter.write(fileContent);
+            fileWriter.write(fileContent+"\n");
             fileWriter.flush();
             fileWriter.close();
-            Log.i("File_WRITE", "FilePath: " + mForecastFilePath);
+            Log.i("File_WRITE", "FilePath: " + filePath);
             Toast.makeText(view.getContext(), "保存成功！！！",Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,13 +225,25 @@ public class MainFragment extends Fragment {
      */
     private String GetReadFile(String file_path){
         String mRead= null;
-        try {
-            mRead = FileUnit.readFileRecursion(file_path);
-            mRead=mRead.substring(0,mRead.length()-1);//去尾
-            mRead=mRead.substring(1,mRead.length());//去头
-            mRead=mRead.replaceAll("[ ]","").replaceAll("[ ]","");//去除空格
-        } catch (IOException e) {
-            e.printStackTrace();
+        String mfileName=file_path.substring(file_path.length()-12,file_path.length()-4);
+        switch (mfileName){
+            case "original":
+                try {
+                    mRead = FileUnit.readFileRecursion(file_path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "forecast":
+                try {
+                    mRead = FileUnit.readFileRecursion(file_path);
+                    mRead=mRead.substring(0,mRead.length()-1);//去尾
+                    mRead=mRead.substring(1,mRead.length());//去头
+                    mRead=mRead.replaceAll("[ ]","").replaceAll("[ ]","");//去除空格
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
         return mRead;
     }
