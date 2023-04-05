@@ -21,7 +21,11 @@ import com.matrix.forecast.ui.Fragment.ChatFragment;
 import com.matrix.forecast.ui.Fragment.MainFragment;
 import com.matrix.forecast.ui.Fragment.UserFragment;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
+
+    private final String mOriginalFilePath="/sdcard/Download/original.txt";//首次进入创建原生文件
 
     private BottomNavigationView bottomNavigation;
     private FrameLayout mainFrame;
@@ -42,6 +46,19 @@ public class MainActivity extends AppCompatActivity {
         getPermission();
         initView();
         //setHalfTransparent();
+        CreateOrigiFile(mOriginalFilePath);
+    }
+
+    /***
+     * 创建原生文件original.txt
+     * @param mOriginalFilePath
+     */
+    private void CreateOrigiFile(String mOriginalFilePath) {
+        try {
+            FileUitl.createFileRecursion(mOriginalFilePath, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /***

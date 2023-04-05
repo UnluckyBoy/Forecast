@@ -36,6 +36,12 @@
             android:layout_marginEnd="5dp"
             android:text="读取" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/show_View"
+            android:textSize="24dp"
+            android:layout_below="@id/forecast_btn"/>
     </RelativeLayout>
 
 </LinearLayout>
