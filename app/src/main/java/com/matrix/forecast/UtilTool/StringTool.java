@@ -45,9 +45,9 @@ public class StringTool {
      * @param mString
      * @return
      */
-    public static String[] FindCh2Num(String[] mString){
+    public static String FindCh2Num(String[] mString){
         String temp,result ="";
-        String[] result_list=null;
+        //String[] result_list=null;
         for(int i=0;i<mString.length;i++){
             switch (mString[i]){
                 case "鼠":
@@ -101,7 +101,7 @@ public class StringTool {
             }
         }
 
-        result_list=result.split(" ");
-        return result_list;
+        //result_list=result.split(" ");
+        return result;
     }
 }
