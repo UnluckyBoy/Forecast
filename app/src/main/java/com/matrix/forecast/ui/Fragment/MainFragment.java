@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.matrix.forecast.R;
 import com.matrix.forecast.UtilTool.FileUnit;
+import com.matrix.forecast.UtilTool.StringTool;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -170,11 +171,9 @@ public class MainFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void GetNum(String mText) {
 
-        //mNumList=new ArrayList<>();
         mNumMap=new HashMap<>();
         String[] mTexts=mText.split("\n");
         for (int i=0;i<mTexts.length;i++){
-            //mNumList=GetSplit(mTexts[i]);
             mNumMap=GetSplit(mTexts[i]);
         }
 
@@ -227,9 +226,9 @@ public class MainFragment extends Fragment {
         Matcher m = p.matcher(mStr);
         String result = m.replaceAll(" ").trim();
         Log.i("","字符串筛选:"+result);//字符串筛选:4 13 26 33 45 10
-        String[] result_list=result.split(" ");
+        String[] temp_list=result.split(" ");
+        String[] result_list= StringTool.deleteArrayNull(temp_list);
 
-        //List<String> mNumList=new ArrayList<>();
         Log.i("","字符串筛选:"+result_list.length);
         int mMoney=Integer.parseInt(result_list[result_list.length-1]);
         for(int i=0;i<result_list.length-1;i++){
