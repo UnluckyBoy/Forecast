@@ -221,22 +221,32 @@ public class MainFragment extends Fragment {
      * @return
      */
     private Map<String,Integer> GetSplit(String mStr){
-        String regEx = "[^0-9]";
-        Pattern p = Pattern.compile(regEx);
-        Matcher m = p.matcher(mStr);
-        String result = m.replaceAll(" ").trim();
-        Log.i("","字符串筛选:"+result);//字符串筛选:4 13 26 33 45 10
-        String[] temp_list=result.split(" ");
-        String[] result_list= StringTool.deleteArrayNull(temp_list);
+        String[] mAll_result=null;
 
-        Log.i("","字符串筛选:"+result_list.length);
-        int mMoney=Integer.parseInt(result_list[result_list.length-1]);
-        for(int i=0;i<result_list.length-1;i++){
+        String mChRegEx = "[^\\u4e00-\\u9fa5]";//中文识别
+        Pattern mCh_p = Pattern.compile(mChRegEx);
+        Matcher mCh_P_M = mCh_p.matcher(mStr);
+        String mCh_result = mCh_P_M.replaceAll(" ").trim();
+        String[] temp_Ch_list=mCh_result.split(" ");
+        String[] result_Ch_list= StringTool.deleteArrayNull(temp_Ch_list);
+        mAll_result=StringTool.FindCh2Num(result_Ch_list);
+
+        String intRegEx = "[^0-9]";//数字识别
+        Pattern int_p = Pattern.compile(intRegEx);
+        Matcher int_P_M = int_p.matcher(mStr);
+        String int_result = int_P_M.replaceAll(" ").trim();
+        Log.i("","字符串筛选:"+int_result);//字符串筛选:4 13 26 33 45 10
+        String[] temp_int_list=int_result.split(" ");
+        String[] result_int_list= StringTool.deleteArrayNull(temp_int_list);//["12", "25", "19", "5"]
+
+        Log.i("","字符串筛选:"+result_int_list.length);
+        int mMoney=Integer.parseInt(result_int_list[result_int_list.length-1]);
+        for(int i=0;i<result_int_list.length-1;i++){
             //mNumList.add(result_list[i]+":"+mMoney);
-            if(mNumMap.containsKey(result_list[i])){
-                mNumMap.put(result_list[i],mNumMap.get(result_list[i])+mMoney);
+            if(mNumMap.containsKey(result_int_list[i])){
+                mNumMap.put(result_int_list[i],mNumMap.get(result_int_list[i])+mMoney);
             }else{
-                mNumMap.put(result_list[i],mMoney);
+                mNumMap.put(result_int_list[i],mMoney);
             }
         }
        FreshEditView();//上一次截取之后，输入框置空
